@@ -1,0 +1,71 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const contactForm = document.getElementById("contactForm");
+
+    if (!contactForm) return;
+
+    // URL'den kaynak bilgisini al
+    const urlParams = new URLSearchParams(window.location.search);
+    const source = urlParams.get("source") || "OZATA Web Sitesi";
+
+    // Formdaki gizli kaynak alanını bul
+    const sourceInput = document.getElementById("formSource");
+
+    // Kaynak bilgisini forma yaz
+    if (sourceInput) {
+        sourceInput.value = source;
+    }
+
+    contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const submitBtn = contactForm.querySelector("button[type='submit']");
+        const originalHTML = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "⏳ Gönderiliyor...";
+
+        try {
+            await emailjs.sendForm(
+                "service_qr4xdqu",
+                "template_zin1z9a",
+                contactForm,
+                "OvTz3Iuh_cncLLF2Q"
+            );
+
+            const messageBox = document.getElementById("formMessage");
+
+            messageBox.className = "form-message success";
+            messageBox.textContent =
+                "✅ Mesajınız başarıyla iletildi. En kısa sürede sizinle iletişime geçeceğiz.";
+
+            contactForm.reset();
+
+            // Form resetlendiği için kaynak bilgisini tekrar yaz
+            if (sourceInput) {
+                sourceInput.value = source;
+            }
+
+            setTimeout(() => {
+                messageBox.className = "form-message";
+                messageBox.textContent = "";
+            }, 4000);
+
+        } catch (err) {
+            console.error(err);
+
+            const messageBox = document.getElementById("formMessage");
+
+            messageBox.className = "form-message error";
+            messageBox.textContent =
+                "❌ Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin.";
+
+            setTimeout(() => {
+                messageBox.className = "form-message";
+                messageBox.textContent = "";
+            }, 4000);
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+    });
+});
